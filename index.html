@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Archive</title>
+    <meta name="description" content="포트폴리오 프로젝트를 카테고리별로 탐색하는 정적 프로젝트 갤러리입니다.">
+    <link rel="stylesheet" href="css/gallery.css?v=20260719-8">
+  </head>
+  <body data-page="index">
+    <a class="skip-link" href="#main">본문으로 바로가기</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html" aria-label="Project Archive 홈">Project <span>Archive</span></a>
+        <nav class="site-nav" id="siteNav" aria-label="카테고리">
+          <a href="banner.html" data-nav="banner">Pop-up &amp; Banner</a>
+          <a href="product.html" data-nav="product">Product Page</a>
+          <a href="video.html" data-nav="video">Video</a>
+          <a href="editorial.html" data-nav="editorial">Editorial Design</a>
+          <a href="asset.html" data-nav="asset">Character &amp; Asset</a>
+        </nav>
+        <div class="header-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="테마 전환">
+            <span class="theme-icon" aria-hidden="true">light_mode</span>
+            <span data-theme-label>라이트</span>
+          </button>
+          <button class="menu-button" type="button" data-menu-toggle aria-controls="siteNav" aria-expanded="false" aria-label="메뉴 열기">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell">
+      <section class="archive-hero" aria-labelledby="archiveTitle">
+        <h1 id="archiveTitle">Project Archive</h1>
+        <p>배너, 상세페이지, 영상, 편집 디자인 작업을 카테고리별로 정리한 프로젝트 아카이브입니다.</p>
+      </section>
+
+      <section class="archive-layout" aria-label="프로젝트 목록">
+        <div class="project-area">
+          <div class="toolbar">
+            <div class="filter-tabs" id="categoryFilters" role="tablist" aria-label="카테고리 필터"></div>
+            <label class="sort-select">
+              <span class="visually-hidden">정렬</span>
+              <select id="sortProjects">
+                <option value="latest">최신순</option>
+                <option value="category">카테고리순</option>
+              </select>
+            </label>
+          </div>
+          <div class="project-grid" id="projectGrid" aria-live="polite"></div>
+        </div>
+
+        <aside class="summary-panel" id="summaryPanel" aria-label="선택된 프로젝트 요약"></aside>
+      </section>
+    </main>
+
+    <script src="js/projects.js?v=20260719-11"></script>
+    <script src="js/project-service.js"></script>
+    <script src="js/gallery.js?v=20260719-11"></script>
+  </body>
+</html>

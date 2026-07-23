@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product Page | Project Archive</title>
+    <meta name="description" content="세로형 상세페이지 중심 프로젝트 상세 보기입니다.">
+    <link rel="stylesheet" href="css/gallery.css?v=20260719-7">
+  </head>
+  <body class="category-page" data-page="category" data-category="product">
+    <a class="skip-link" href="#main">본문으로 바로가기</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="index.html">Project <span>Archive</span></a>
+        <nav class="site-nav" id="siteNav" aria-label="카테고리">
+          <a href="banner.html" data-nav="banner">Pop-up &amp; Banner</a>
+          <a href="product.html" data-nav="product">Product Page</a>
+          <a href="video.html" data-nav="video">Video</a>
+          <a href="editorial.html" data-nav="editorial">Editorial Design</a>
+          <a href="asset.html" data-nav="asset">Character &amp; Asset</a>
+        </nav>
+        <div class="header-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="테마 전환"><span class="theme-icon" aria-hidden="true">light_mode</span><span data-theme-label>라이트</span></button>
+          <button class="menu-button" type="button" data-menu-toggle aria-controls="siteNav" aria-expanded="false" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="page-shell category-list">
+      <section class="detail-heading" id="categoryHeading"></section>
+      <section class="project-grid" id="categoryProjectGrid" aria-live="polite"></section>
+    </main>
+    <main class="page-shell detail-page category-detail">
+      <section class="detail-heading" id="detailHeading"></section>
+      <section class="detail-layout">
+        <div class="work-column">
+          <div class="viewer-card" id="detailMedia"></div>
+          <div class="thumbs-wrap">
+            <div class="counter" id="detailCounter">01 / 01</div>
+            <div class="thumb-row" id="detailThumbs"></div>
+          </div>
+        </div>
+        <aside class="side-panels" id="detailPanels"></aside>
+      </section>
+      <nav class="project-nav" id="detailNav" aria-label="프로젝트 이동"></nav>
+    </main>
+
+    <script src="js/projects.js?v=20260719-5"></script>
+    <script src="js/project-service.js"></script>
+    <script src="js/gallery.js?v=20260719-6"></script>
+  </body>
+</html>
