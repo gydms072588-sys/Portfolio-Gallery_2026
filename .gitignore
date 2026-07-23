@@ -1,0 +1,24 @@
+# Local browser QA profiles, temporary servers, and captures
+/tmp/
+
+# Generated QA screenshots
+/assets/qa/
+
+# JavaScript dependencies
+/node_modules/
+
+# Build output
+/dist/
+/build/
+/out/
+
+# Tool and test caches
+/.cache/
+/.parcel-cache/
+/.vite/
+/.next/
+/coverage/
+
+# Local logs
+*.log
+*.pid

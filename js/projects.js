@@ -162,9 +162,16 @@ window.PROJECTS = [
       role: settings.role || "기획 · 디자인",
       scope: settings.scope || "콘텐츠 구성 · 디자인 · 제작",
       tools: settings.tools || ["Figma", "Photoshop"],
+      projectType: settings.projectType,
+      listThumbnail: settings.listThumbnail,
+      cardMeta: settings.cardMeta,
       summary,
+      detailIntroduction: settings.detailIntroduction,
+      intentionTitle: settings.intentionTitle,
       intention: settings.intention || "프로젝트 목적과 사용 환경에 맞춰 핵심 정보가 자연스럽게 전달되도록 구성했습니다.",
       improvementTitle: settings.improvementTitle || "정보 전달과 시각적 완성도 개선",
+      accordions: settings.accordions,
+      caseStudy: settings.caseStudy,
       improvements: settings.improvements || [
         { title: "정보 위계", description: "핵심 메시지와 보조 정보를 명확하게 구분했습니다." },
         { title: "시선 흐름", description: "콘텐츠가 자연스러운 순서로 읽히도록 배치했습니다." },
@@ -195,15 +202,116 @@ window.PROJECTS = [
     makeProject("product-enne-tube-heater", "에네 튜브히터 상세페이지", "product", "산업용 난방 제품의 특징과 사용 환경, 문의 흐름을 단계적으로 전달하는 상세페이지입니다.", "assets/images/projects/product-enne-tube-heater.jpg"),
     makeProject("product-junosoft-shopping", "주노소프트 쇼핑몰 상세페이지", "product", "카테고리별 상품 특징과 구매 정보를 쉽게 확인할 수 있도록 구성한 쇼핑몰 상세페이지입니다.", "assets/images/projects/product-junosoft-shopping.jpg"),
 
-    makeProject("asset-jarigobbi-character", "자리꼬비 캐릭터·일러스트 에셋", "asset", "팀 프로젝트의 메인 캐릭터와 서비스 활용을 위한 일러스트 에셋을 제작했습니다.", "assets/images/projects/editorial-spread-1.png", { tools: ["Illustrator", "Photoshop"] }),
-    makeProject("asset-item-illustration", "아이템 일러스트 외주 작업", "asset", "게임 모임에서 사용할 아이템 일러스트를 형태와 색감 기준에 맞춰 제작했습니다.", "assets/images/projects/editorial-spread-2.png", { tools: ["Illustrator", "Photoshop"] }),
-    makeProject("asset-ogq-sticker", "OGQ 스티커 콘텐츠", "asset", "일상 감정을 가볍게 표현할 수 있는 캐릭터 동작과 표정 중심의 스티커 콘텐츠입니다.", "assets/images/projects/editorial-spread-3.png", { tools: ["Illustrator", "Photoshop"] }),
+    // 자린고비 메인 캐릭터 이미지 교체
+    makeProject(
+      "asset-jarigobbi-character",
+      "자린고비 메인 캐릭터 디자인",
+      "asset",
+      "절약 습관을 게임처럼 경험하는 팀 프로젝트의 메인 캐릭터를 기획하고, 서비스 화면과 보상 콘텐츠에 활용할 수 있는 캐릭터 에셋을 제작했습니다.",
+      "assets/images/character/jaringobi/jaringobi-main.jpg",
+      {
+        listThumbnail: "assets/images/character/jaringobi/jaringobi-thumbnail.jpg",
+        period: "2026",
+        cardMeta: "캐릭터 디자인",
+        projectType: "Team Project",
+        role: "캐릭터 기획 · 캐릭터 디자인 · 일러스트 에셋 제작",
+        scope: "캐릭터 콘셉트 설정 · 메인 캐릭터 디자인 · 기본 형태 제작 · 표정 및 동작 제작 · 서비스 활용 에셋 제작",
+        tools: ["Illustrator", "Photoshop"],
+        detailIntroduction: "절약 서비스의 메인 캐릭터와 활용 에셋을 제작했습니다.",
+        accordions: [
+          { id: "direction", title: "디자인 방향", icon: "lightbulb", content: "절약이라는 주제를 사용자가 어렵거나 무겁게 느끼지 않도록 친근하고 단순한 캐릭터 디자인을 목표로 했습니다.\n\n프로젝트의 레트로하고 손으로 그린 듯한 분위기를 유지하면서도, 작은 화면에서 캐릭터의 표정과 행동이 명확하게 보이도록 형태와 외곽선을 정리했습니다." },
+          { id: "process", title: "제작 과정", icon: "draw", content: "팀에서 정리한 서비스 콘셉트와 타깃 사용자를 바탕으로 캐릭터의 성격과 시각적 특징을 설정했습니다.\n\n이후 정면, 측면과 후면 등 캐릭터의 기본 형태를 정리하고, 서비스 상황에 맞는 표정과 동작을 추가로 제작했습니다.\n\n다양한 화면 크기에서도 쉽게 인식할 수 있도록 복잡한 디테일을 줄이고, 외곽선과 색상 기준을 일관되게 적용했습니다." },
+          { id: "usage", title: "서비스 활용", icon: "widgets", content: "완성된 캐릭터는 서비스의 메인 캐릭터뿐 아니라 미션 안내, 절약 보상, 아이템 획득, 캐릭터 성장과 방 꾸미기 콘텐츠 등에 활용할 수 있도록 구성했습니다.\n\n하나의 캐릭터를 다양한 화면과 콘텐츠에 확장할 수 있도록 디자인 기준을 정리해 서비스 전체의 시각적 일관성을 유지했습니다." }
+        ],
+        meta: "캐릭터 디자인"
+      }
+    ),
+    // 게임 아이템 일러스트 이미지 교체
+    makeProject(
+      "asset-item-illustration",
+      "게임 아이템 일러스트 외주 작업",
+      "asset",
+      "게임 모임에서 사용할 다양한 아이템 이미지를 의뢰받아, 게임의 분위기와 설정에 맞춰 형태와 색상, 질감을 정리해 제작했습니다.",
+      "assets/images/character/game-items/game-items-main.jpg",
+      {
+        listThumbnail: "assets/images/character/game-items/game-items-thumbnail.jpg",
+        period: "2026",
+        cardMeta: "게임 아이템 일러스트",
+        projectType: "Client Work",
+        role: "아이템 일러스트 디자인 · 게임용 에셋 제작",
+        scope: "요청사항 분석 · 아이템 콘셉트 정리 · 개별 아이템 일러스트 제작 · 이미지 에셋 정리",
+        tools: ["Illustrator", "Photoshop"],
+        detailIntroduction: "게임용 아이템 일러스트와 이미지 에셋을 제작했습니다.",
+        accordions: [
+          { id: "direction", title: "작업 방향", icon: "lightbulb", content: "게임 화면과 콘텐츠 안에서 각각의 아이템을 빠르게 구분할 수 있도록 실루엣과 주요 특징을 명확하게 표현했습니다.\n\n서로 다른 종류의 아이템이 하나의 게임 안에서 사용되는 만큼 외곽선, 채색 방식, 명암과 질감 표현을 통일해 전체적인 일관성을 유지했습니다." },
+          { id: "process", title: "제작 과정", icon: "draw", content: "전달받은 아이템 목록과 참고 자료를 확인한 뒤 각 아이템의 용도와 시각적 특징을 정리했습니다.\n\n이후 아이템별 시안을 제작하고 피드백을 반영해 형태와 색상, 세부 표현을 보완했습니다.\n\n최종 결과물은 실제 게임 콘텐츠에 바로 사용할 수 있도록 배경과 이미지 규격을 정리한 에셋 형태로 제작했습니다." },
+          { id: "assets", title: "에셋 구성", icon: "widgets", content: "신발, 열쇠, 카메라, 와인, 티켓과 배지 등 서로 다른 성격의 아이템을 하나의 시각적 스타일로 구성했습니다.\n\n아이템마다 고유한 특징은 유지하면서도 외곽선과 채색 기준을 통일해 한 세트처럼 보이도록 정리했습니다." }
+        ],
+        meta: "게임 아이템 일러스트"
+      }
+    ),
+    // OGQ 네이버 스티커 이미지 교체
+    makeProject(
+      "asset-ogq-sticker",
+      "OGQ 네이버 스티커 콘텐츠",
+      "asset",
+      "일상에서 자주 사용하는 감정과 상황을 캐릭터의 표정과 동작으로 표현한 OGQ 네이버 스티커 콘텐츠를 제작했습니다.",
+      "assets/images/character/ogq-stickers/ogq-stickers-main.jpg",
+      {
+        listThumbnail: "assets/images/character/ogq-stickers/ogq-stickers-thumbnail.jpg",
+        period: "2026",
+        cardMeta: "캐릭터 스티커",
+        projectType: "Personal Project",
+        role: "캐릭터 기획 · 스티커 콘텐츠 기획 · 일러스트 제작",
+        scope: "캐릭터 설정 · 감정 및 상황 기획 · 표정과 동작 제작 · 플랫폼 등록용 이미지 정리",
+        tools: ["Illustrator", "Photoshop"],
+        detailIntroduction: "OGQ 감정 스티커를 제작해 실제 출시까지 완료했습니다.",
+        accordions: [
+          { id: "direction", title: "콘텐츠 방향", icon: "lightbulb", content: "메신저와 댓글에서 자주 사용하는 감정과 대화 상황을 중심으로 스티커 주제를 구성했습니다.\n\n작은 화면에서도 감정이 빠르게 전달될 수 있도록 캐릭터의 실루엣과 표정을 명확하게 표현하고, 복잡한 배경과 불필요한 요소는 줄였습니다." },
+          { id: "process", title: "제작 과정", icon: "draw", content: "일상에서 자주 사용하는 감정과 대화 상황을 먼저 정리한 뒤, 각각의 상황에 맞는 캐릭터 동작과 표정을 기획했습니다.\n\n캐릭터의 비율과 외형 기준은 일관되게 유지하면서도 각 스티커의 감정 차이가 분명하게 보이도록 표정, 포즈와 소품을 다르게 구성했습니다." },
+          { id: "platform", title: "플랫폼 적용", icon: "publish", content: "완성된 스티커는 OGQ Creator Studio의 이미지 크기, 여백과 파일 형식 기준을 확인해 플랫폼 등록용 파일로 정리했습니다.\n\n실제 메신저 환경에서 사용되는 크기를 고려해 축소된 상태에서도 캐릭터의 표정과 동작이 잘 보이는지 함께 점검했습니다." }
+        ],
+        meta: "캐릭터 스티커"
+      }
+    ),
 
     makeProject("video-ably-hero", "에이블리 히어로 AI 영상", "video", "패션 커머스 메인 히어로 영역에 사용할 프로모션 AI 영상입니다.", "assets/images/projects/video-cover.png", { tools: ["AI Video", "Premiere Pro", "Photoshop"] }),
     makeProject("video-yeogida-event", "여기어때 이벤트 AI 영상", "video", "여행 이벤트 웹앱의 첫 화면에 사용할 히어로 배너 영상을 제작했습니다.", "assets/images/projects/video-nature.png", { tools: ["AI Video", "Premiere Pro"] }),
     makeProject("video-junosoft-cafe24", "주노소프트 카페24 쇼핑몰 AI 영상", "video", "화장품 쇼핑몰 템플릿에 사용할 브랜드 메인 영상과 소스 이미지를 구성했습니다.", "assets/images/projects/video-clean.png", { tools: ["AI Video", "Premiere Pro"] }),
 
-    makeProject("editorial-business-card", "명함 디자인 외주 작업", "editorial", "브랜드 인상이 깔끔하게 전달되도록 명함 색감과 레이아웃 시안을 정리했습니다.", "assets/images/projects/editorial-cover.png", { tools: ["Illustrator", "Photoshop"] })
+    makeProject(
+      "editorial-business-card",
+      "브랜드 명함 디자인 외주 작업",
+      "editorial",
+      "전달받은 기획서를 바탕으로 시안을 제안하고, 선택된 최종안을 인쇄용 파일로 제작했습니다.",
+      "assets/images/projects/editorial-business-card-list.jpg",
+      {
+        period: "2026",
+        role: "편집 디자인 · 시안 제작",
+        scope: "기획서 분석 · 디자인 시안 제안 · 최종안 제작 · 인쇄용 파일 제작",
+        tools: ["Illustrator", "Photoshop"],
+        meta: "명함 디자인 1종",
+        cardMeta: "명함 디자인 1종",
+        intentionTitle: "작업 방향",
+        intention: "의뢰 업체에서 전달받은 기획서와 필수 정보를 확인한 뒤, 브랜드 이미지와 정보 전달 방식을 고려해 디자인 방향을 정리했습니다.\n\n명함에 포함되어야 하는 정보의 우선순위와 가독성을 고려하고, 레이아웃과 컬러 구성에 차이를 둔 여러 가지 디자인 시안을 제작해 제안했습니다.",
+        improvementTitle: "제작 과정",
+        improvements: [
+          {
+            title: "",
+            description: "전달받은 기획서를 기준으로 서로 다른 방향의 명함 디자인 시안을 제작하고, 피드백을 반영해 최종 디자인을 정리했습니다.\n\n선택된 시안은 텍스트 크기, 정보 간격, 여백과 정렬을 세부적으로 보완했습니다. 최종 결과물은 실제 인쇄 과정에서 바로 사용할 수 있도록 명함 규격과 재단 여백, 컬러 모드, 서체 아웃라인 등 인쇄 제작 기준을 반영해 정리했습니다."
+          }
+        ],
+        caseStudy: {
+          main: "assets/images/projects/editorial-business-card-detail.jpg",
+          proposals: ["assets/images/projects/editorial-business-card-detail.jpg"],
+          final: [
+            "assets/images/projects/editorial-business-card-final-front.jpg",
+            "assets/images/projects/editorial-business-card-final-back.jpg"
+          ],
+          printReady: "assets/images/projects/editorial-business-card-print-ready.jpg"
+        }
+      }
+    )
   );
 })();
 

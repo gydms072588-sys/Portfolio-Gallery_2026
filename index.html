@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Project Archive</title>
     <meta name="description" content="포트폴리오 프로젝트를 카테고리별로 탐색하는 정적 프로젝트 갤러리입니다.">
-    <link rel="stylesheet" href="css/gallery.css?v=20260719-8">
+    <link rel="stylesheet" href="css/gallery.css?v=20260724-3">
   </head>
   <body data-page="index">
     <a class="skip-link" href="#main">본문으로 바로가기</a>
@@ -32,9 +32,18 @@
     </header>
 
     <main id="main" class="page-shell">
-      <section class="archive-hero" aria-labelledby="archiveTitle">
-        <h1 id="archiveTitle">Project Archive</h1>
-        <p>배너, 상세페이지, 영상, 편집 디자인 작업을 카테고리별로 정리한 프로젝트 아카이브입니다.</p>
+      <section class="archive-hero editorial-hero" aria-labelledby="archiveTitle">
+        <div class="hero-index" data-reveal>Portfolio / 2026</div>
+        <div class="hero-copy">
+          <h1 id="archiveTitle" data-reveal>Selected<br>Works</h1>
+          <p data-reveal>배너, 상세페이지, 영상, 편집 디자인과 캐릭터 작업을 기록한 프로젝트 아카이브입니다.</p>
+        </div>
+        <div class="project-ring-shell" data-reveal>
+          <div id="project-ring-viewport" class="project-ring-viewport" aria-hidden="true"></div>
+          <div class="project-ring-fallback" id="projectRingFallback" aria-label="대표 프로젝트 빠른 선택" hidden></div>
+          <p class="project-ring-hint">Move / drag to rotate</p>
+        </div>
+        <a class="hero-scroll" href="#projectGrid" data-reveal>Scroll to explore <span aria-hidden="true">↓</span></a>
       </section>
 
       <section class="archive-layout" aria-label="프로젝트 목록">
@@ -56,8 +65,9 @@
       </section>
     </main>
 
-    <script src="js/projects.js?v=20260719-11"></script>
+    <script src="js/projects.js?v=20260723-1"></script>
     <script src="js/project-service.js"></script>
-    <script src="js/gallery.js?v=20260719-11"></script>
+    <script src="js/gallery.js?v=20260724-1"></script>
+    <script type="module" src="js/project-ring.js?v=20260724-1"></script>
   </body>
 </html>

@@ -8,6 +8,9 @@
     editorial: "Editorial Design",
     asset: "Character & Asset"
   };
+  const categoryDescriptions = {
+    asset: "서비스, 게임, 콘텐츠 플랫폼 등 서로 다른 사용 환경에 맞춰 캐릭터와 일러스트 에셋을 제작했습니다. <br> 캐릭터의 개성과 시각적 완성도뿐 아니라 실제 화면에서의 활용성과 확장 가능성을 함께 고려했습니다."
+  };
   const pageLinks = {
     banner: "banner.html",
     product: "product.html",
@@ -35,11 +38,14 @@
   let currentProject = null;
   let openDetailAccordion = null;
   let categoryDialogCleanup = null;
+  let imageLightboxCleanup = null;
+  let revealObserver = null;
 
   document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     initMenu();
     setActiveNavigation();
+    initEditorialHeader();
     protectImages();
 
     const page = document.body.dataset.page;
@@ -118,6 +124,14 @@
     });
   }
 
+  function initEditorialHeader() {
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+    const update = () => header.classList.toggle("is-scrolled", window.scrollY > 20);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+
   function setActiveNavigation() {
     const project = service.getProjectById(document.body.dataset.projectId);
     const activeCategory = project ? project.category : document.body.dataset.category || "";
@@ -158,7 +172,11 @@
     heading.innerHTML = `
       <span class="status-pill">${labels[category]}</span>
       <div class="category-heading-row">
-        <div><h1>${labels[category]}</h1><p>${projects.length}개의 프로젝트</p></div>
+        <div>
+          <h1>${labels[category]}</h1>
+          ${categoryDescriptions[category] ? `<p class="category-introduction">${categoryDescriptions[category]}</p>` : ""}
+          <p>${projects.length}개의 프로젝트</p>
+        </div>
         <div class="view-dropdown" data-view-dropdown>
           <button class="view-dropdown-toggle" type="button" data-view-toggle aria-haspopup="menu" aria-expanded="false" aria-label="프로젝트 보기 방식 선택">
             <span class="view-current-icon" data-current-view-icon aria-hidden="true"></span>
@@ -273,10 +291,10 @@
       ? `<video src="${file.src}" muted playsinline preload="metadata" data-video-thumbnail aria-label="${file.alt || project.title} 대표 장면"></video>`
       : `<img src="${cover}" alt="${file.alt || project.title}">`;
     return `
-      <article class="project-card category-project-card">
+      <article class="project-card category-project-card" data-project-id="${project.id}">
         <a href="${pageLinks[project.category]}?project=${encodeURIComponent(project.id)}" aria-label="${project.title} 상세 보기">
           <div class="card-image">${preview}${project.type === "video" ? '<span class="play-badge material-symbols-outlined" aria-hidden="true">play_arrow</span>' : ""}</div>
-          <div class="card-body"><span class="category-chip ${project.category}">${labels[project.category]}</span><h2>${project.title}</h2><p>${project.summary}</p><p class="card-meta-line">${project.period} · ${project.files.length}개 결과물</p></div>
+          <div class="card-body"><span class="category-chip ${project.category}">${labels[project.category]}</span><h2>${project.title}</h2><p>${project.summary}</p><p class="card-meta-line">${project.category === "asset" ? (project.cardMeta || labels[project.category]) : `${project.period} · ${project.cardMeta || `${project.files.length}개 결과물`}`}</p></div>
         </a>
       </article>`;
   }
@@ -303,6 +321,7 @@
         activeProject = filtered.find((project) => project.id === activeProject.id) || filtered[0] || service.getProjects()[0];
         updateSelectedCard(grid, activeProject.id);
         renderSummary(activeProject);
+        window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
       });
       filters.appendChild(button);
     });
@@ -312,6 +331,7 @@
       activeProject = filtered.find((project) => project.id === activeProject.id) || filtered[0] || activeProject;
       updateSelectedCard(grid, activeProject.id);
       renderSummary(activeProject);
+      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
     });
 
     grid.addEventListener("click", (event) => {
@@ -332,8 +352,18 @@
       card.click();
     });
 
+    window.addEventListener("projectringselect", (event) => {
+      const project = service.getProjectById(event.detail?.projectId);
+      if (!project) return;
+      activeProject = project;
+      updateSelectedCard(grid, project.id);
+      renderSummary(project);
+      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: project.id } }));
+    });
+
     renderProjectCards(grid, activeCategory, sort.value, activeProject.id);
     renderSummary(activeProject);
+    window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
   }
 
   function renderProjectCards(grid, category, sortMode, selectedId) {
@@ -358,7 +388,7 @@
         <div class="card-body">
           <span class="category-chip ${project.category}">${labels[project.category]}</span>
           <h2>${project.title}</h2>
-          <p>${project.period}</p>
+          ${project.category === "asset" ? "" : `<p>${project.period}</p>`}
           <p class="card-meta-line">${file.meta || project.type} · ${project.files.length}개 결과물</p>
         </div>
       </article>
@@ -380,7 +410,7 @@
       <h2>${project.title}</h2>
       <div class="summary-meta">
         <span class="category-chip ${project.category}">${labels[project.category]}</span>
-        <span>${project.period}</span>
+        ${project.category === "asset" ? "" : `<span>${project.period}</span>`}
       </div>
       <img class="summary-image" src="${file.thumbnail || fallbackImage}" alt="${file.alt || project.title}">
       <p>${project.summary}</p>
@@ -421,17 +451,28 @@
 
   function renderDetailHeading(project) {
     const heading = document.getElementById("detailHeading");
+    const detailCopy = project.detailIntroduction
+      ? `<div class="detail-introduction"><p>${project.category === "asset" ? project.detailIntroduction.replace(/\n\n/g, " ") : project.detailIntroduction.replace(/\n\n/g, "<br><br>")}</p></div>`
+      : `<p>${project.summary}</p>`;
     heading.innerHTML = `
       <div>
         <span class="status-pill">${labels[project.category]}</span>
         <h1>${project.title}</h1>
-        <p>${project.summary}</p>
+        ${detailCopy}
       </div>
     `;
   }
 
   function renderMedia(project, index) {
     const media = document.getElementById("detailMedia");
+    if (imageLightboxCleanup) {
+      imageLightboxCleanup();
+      imageLightboxCleanup = null;
+    }
+    if (project.caseStudy) {
+      renderEditorialCaseStudy(media, project);
+      return;
+    }
     const previewItems = getFilteredPreviewItems(project);
     const item = previewItems[index] || previewItems[0];
     if (!item) return;
@@ -482,6 +523,23 @@
       return;
     }
 
+    if (project.category === "asset") {
+      media.innerHTML = `
+        <div class="editorial-viewer asset-main-viewer">
+          <img src="${file.src}" alt="${file.alt}">
+          <button class="viewer-action expand material-symbols-outlined" type="button" data-lightbox-open aria-haspopup="dialog" aria-controls="assetImageLightbox" aria-label="${project.title} 이미지 확대">fullscreen</button>
+        </div>
+        <div class="image-lightbox" id="assetImageLightbox" data-image-lightbox role="dialog" aria-modal="true" aria-label="${project.title} 확대 이미지" hidden>
+          <button class="image-lightbox-close material-symbols-outlined" type="button" data-lightbox-close aria-label="확대 이미지 닫기">close</button>
+          <div class="image-lightbox-content">
+            <img src="${file.src}" alt="${file.alt} 확대 보기">
+          </div>
+        </div>
+      `;
+      imageLightboxCleanup = bindImageLightbox(media);
+      return;
+    }
+
     media.innerHTML = `
       <div class="${project.type === "editorial" ? "editorial-viewer" : "banner-viewer"}">
         <button class="viewer-action prev material-symbols-outlined" type="button" data-step="-1" aria-label="${previousLabel}">chevron_left</button>
@@ -492,6 +550,98 @@
     `;
     bindMediaNavigation(media);
     bindFullscreen(media);
+  }
+
+  function bindImageLightbox(media) {
+    const openButton = media.querySelector("[data-lightbox-open]");
+    const lightbox = media.querySelector("[data-image-lightbox]");
+    const closeButton = media.querySelector("[data-lightbox-close]");
+    if (!openButton || !lightbox || !closeButton) return null;
+
+    const close = (restoreFocus = true) => {
+      if (lightbox.hidden) return;
+      lightbox.hidden = true;
+      document.body.classList.remove("lightbox-open");
+      if (restoreFocus) openButton.focus();
+    };
+    const onKeydown = (event) => {
+      if (event.key === "Escape" && !lightbox.hidden) close();
+    };
+    const onBackdropClick = (event) => {
+      if (!event.target.closest(".image-lightbox-content img")) close();
+    };
+
+    openButton.addEventListener("click", () => {
+      lightbox.hidden = false;
+      document.body.classList.add("lightbox-open");
+      closeButton.focus();
+    });
+    closeButton.addEventListener("click", () => close());
+    lightbox.addEventListener("click", onBackdropClick);
+    document.addEventListener("keydown", onKeydown);
+
+    return () => {
+      close(false);
+      document.removeEventListener("keydown", onKeydown);
+    };
+  }
+
+  function renderEditorialCaseStudy(media, project) {
+    const content = project.caseStudy;
+    const proposalImages = content.proposals.map((src, index) => `
+      <figure class="case-study-figure">
+        <img src="${src}" alt="명함 디자인 시안 ${index + 1}">
+      </figure>
+    `).join("");
+    const finalImages = content.final.map((src, index) => `
+      <figure class="case-study-figure">
+        <img src="${src}" alt="최종 명함 ${index === 0 ? "앞면" : "뒷면"}">
+        <figcaption>${index === 0 ? "Front" : "Back"}</figcaption>
+      </figure>
+    `).join("");
+
+    media.classList.add("editorial-case-study-card");
+    media.innerHTML = `
+      <article class="editorial-case-study">
+        <section class="case-study-section case-study-hero">
+          <header>
+            <p class="case-study-kicker">01</p>
+            <h2>Brand Business Card Design</h2>
+            <p>전달받은 기획서를 바탕으로 브랜드의 인상과 정보 전달력을 함께 고려한 명함 디자인을 제작했습니다.</p>
+          </header>
+          <figure class="case-study-figure">
+            <img src="${content.main}" alt="브랜드 명함 디자인 프로젝트 메인 배너">
+          </figure>
+        </section>
+        <section class="case-study-section">
+          <header>
+            <p class="case-study-kicker">02</p>
+            <h2>Design Proposals</h2>
+            <p>레이아웃과 컬러, 정보 강조 방식에 차이를 둔 여러 가지 시안을 제작해 선택지를 제안했습니다.</p>
+          </header>
+          <div class="case-study-grid case-study-grid--proposals">${proposalImages}</div>
+        </section>
+        <section class="case-study-section">
+          <header>
+            <p class="case-study-kicker">03</p>
+            <h2>Final Design</h2>
+            <p>선택된 시안을 바탕으로 정보 간 위계와 여백을 조정해 최종 디자인을 완성했습니다.</p>
+          </header>
+          <div class="case-study-grid case-study-grid--final">${finalImages}</div>
+        </section>
+        <section class="case-study-section">
+          <header>
+            <p class="case-study-kicker">04</p>
+            <h2>Print-ready Output</h2>
+            <p>인쇄 규격과 제작 기준을 반영해 별도의 추가 수정 없이 인쇄소에 전달할 수 있는 최종 파일로 정리했습니다.</p>
+          </header>
+          <figure class="case-study-figure">
+            <img src="${content.printReady}" alt="재단선과 인쇄 제작 기준을 반영한 인쇄용 결과물">
+            <figcaption>명함 규격 · 재단 여백 · CMYK 컬러 모드 · 서체 아웃라인 적용</figcaption>
+          </figure>
+        </section>
+      </article>
+    `;
   }
 
   function bindMediaNavigation(media) {
@@ -656,12 +806,26 @@
   function renderPanels(project) {
     const panels = document.getElementById("detailPanels");
     const visibleImprovements = getVisibleImprovements(project);
+    const customAccordions = project.accordions && project.accordions.length
+      ? project.accordions.map((item) => `
+          <section class="accordion-item${openDetailAccordion === item.id ? " is-open" : ""}" data-accordion-item="${item.id}">
+            <button class="accordion-trigger" type="button" aria-expanded="${openDetailAccordion === item.id}" aria-controls="${project.id}-${item.id}-panel">
+              <span><span class="material-symbols-outlined" aria-hidden="true">${item.icon || "notes"}</span>${item.title}</span>
+              <span class="material-symbols-outlined accordion-arrow" aria-hidden="true">keyboard_arrow_down</span>
+            </button>
+            <div class="accordion-content" id="${project.id}-${item.id}-panel" role="region">
+              <div class="accordion-content-inner"><p>${item.content.replace(/\n\n/g, "<br><br>")}</p></div>
+            </div>
+          </section>
+        `).join("")
+      : null;
     panels.innerHTML = `
       <section class="info-panel detail-info-panel">
         <div class="project-info-section">
           <h2><span class="material-symbols-outlined" aria-hidden="true">info</span> 프로젝트 정보</h2>
           <dl class="info-list">
-            <div><dt>작업 기간</dt><dd>${project.period}</dd></div>
+            ${project.category === "asset" ? "" : `<div><dt>작업 기간</dt><dd>${project.period}</dd></div>`}
+            ${project.projectType ? `<div><dt>프로젝트 형태</dt><dd>${project.projectType}</dd></div>` : ""}
             <div><dt>역할</dt><dd>${project.role}</dd></div>
             <div><dt>작업 범위</dt><dd>${project.scope}</dd></div>
             ${project.deliverables ? `<div><dt>결과물</dt><dd>${project.deliverables}</dd></div>` : ""}
@@ -670,28 +834,28 @@
           </dl>
         </div>
         <div class="detail-accordion" data-detail-accordion>
-          <section class="accordion-item${openDetailAccordion === "intention" ? " is-open" : ""}" data-accordion-item="intention">
+          ${customAccordions || `<section class="accordion-item${openDetailAccordion === "intention" ? " is-open" : ""}" data-accordion-item="intention">
             <button class="accordion-trigger" type="button" aria-expanded="${openDetailAccordion === "intention"}" aria-controls="planningIntentPanel">
-              <span><span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>기획 의도</span>
+              <span><span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>${project.intentionTitle || "기획 의도"}</span>
               <span class="material-symbols-outlined accordion-arrow" aria-hidden="true">keyboard_arrow_down</span>
             </button>
             <div class="accordion-content" id="planningIntentPanel" role="region">
-              <div class="accordion-content-inner"><p>${project.intention}</p></div>
+              <div class="accordion-content-inner"><p>${project.intention.replace(/\n\n/g, "<br><br>")}</p></div>
             </div>
           </section>
           <section class="accordion-item${openDetailAccordion === "improvements" ? " is-open" : ""}" data-accordion-item="improvements">
             <button class="accordion-trigger" type="button" aria-expanded="${openDetailAccordion === "improvements"}" aria-controls="improvementsPanel">
-              <span><span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>핵심 개선</span>
+              <span><span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>${project.improvementTitle || "핵심 개선"}</span>
               <span class="material-symbols-outlined accordion-arrow" aria-hidden="true">keyboard_arrow_down</span>
             </button>
             <div class="accordion-content" id="improvementsPanel" role="region">
               <div class="accordion-content-inner" aria-live="polite">
                 <ul class="improvement-list">
-                  ${visibleImprovements.map((item) => `<li><strong>${item.title}</strong>${item.description ? `<span>${item.description}</span>` : ""}</li>`).join("")}
+                  ${visibleImprovements.map((item) => `<li>${item.title ? `<strong>${item.title}</strong>` : ""}${item.description ? `<span>${item.description.replace(/\n\n/g, "<br><br>")}</span>` : ""}</li>`).join("")}
                 </ul>
               </div>
             </div>
-          </section>
+          </section>`}
         </div>
       </section>
     `;
@@ -855,9 +1019,39 @@
 
   function protectImages(root = document) {
     root.querySelectorAll("img").forEach((image) => {
+      if (!image.hasAttribute("loading") && image.getAttribute("fetchpriority") !== "high") image.loading = "lazy";
+      image.decoding = "async";
       image.addEventListener("error", () => {
         if (!image.src.includes(fallbackImage)) image.src = fallbackImage;
       }, { once: true });
+    });
+    initRevealAnimations(root);
+  }
+
+  function initRevealAnimations(root = document) {
+    const targets = root.querySelectorAll("[data-reveal], .project-card, .detail-heading, .viewer-card, .info-panel, .thumbs-wrap");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      targets.forEach((target) => target.classList.add("is-visible"));
+      return;
+    }
+    if (!("IntersectionObserver" in window)) {
+      targets.forEach((target) => target.classList.add("is-visible"));
+      return;
+    }
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    }
+    targets.forEach((target, index) => {
+      if (target.classList.contains("is-visible") || target.dataset.revealBound === "true") return;
+      target.dataset.revealBound = "true";
+      target.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 70}ms`);
+      revealObserver.observe(target);
     });
   }
 
