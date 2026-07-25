@@ -315,6 +315,29 @@ window.PROJECTS = [
   );
 })();
 
+(function configureRingThumbnails() {
+  const ringThumbnails = {
+    "banner-winter-sale": "assets/images/thumbnails/ring/banner-winter-sale-ring.jpg",
+    "banner-kbcard-event": "assets/images/thumbnails/ring/banner-kbcard-event-ring.jpg",
+    "banner-ably-redesign": "assets/images/thumbnails/ring/banner-ably-redesign-ring.jpg",
+    "banner-univstore-event": "assets/images/thumbnails/ring/banner-univstore-event-ring.jpg",
+    "banner-shopping-gift": "assets/images/thumbnails/ring/banner-shopping-gift-ring.jpg",
+    "banner-junosoft-commerce": "assets/images/thumbnails/ring/banner-junosoft-commerce-ring.jpg",
+    "product-ably-blouse": "assets/images/thumbnails/ring/product-ably-blouse-ring.jpg",
+    "product-enne-tube-heater": "assets/images/thumbnails/ring/product-enne-tube-heater-ring.jpg",
+    "product-junosoft-shopping": "assets/images/thumbnails/ring/product-junosoft-shopping-ring.jpg",
+    "asset-jarigobbi-character": "assets/images/thumbnails/ring/asset-jarigobbi-character-ring.jpg",
+    "asset-item-illustration": "assets/images/thumbnails/ring/asset-item-illustration-ring.jpg",
+    "asset-ogq-sticker": "assets/images/thumbnails/ring/asset-ogq-sticker-ring.jpg",
+    "video-ably-hero": "assets/images/thumbnails/ring/video-ably-hero-ring.jpg",
+    "video-yeogida-event": "assets/images/thumbnails/ring/video-yeogida-event-ring.jpg"
+  };
+
+  window.PROJECTS.forEach((project) => {
+    if (ringThumbnails[project.id]) project.ringThumbnail = ringThumbnails[project.id];
+  });
+})();
+
 // Product detail media: list covers stay independent from the full detail
 // images and the object-focused navigation thumbnails.
 (function configureProductDetailMedia() {

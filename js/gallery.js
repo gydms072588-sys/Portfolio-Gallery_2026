@@ -127,9 +127,30 @@
   function initEditorialHeader() {
     const header = document.querySelector(".site-header");
     if (!header) return;
-    const update = () => header.classList.toggle("is-scrolled", window.scrollY > 20);
-    update();
+    const desktopQuery = window.matchMedia("(min-width: 769px)");
+    const revealBoundary = 88;
+    let pointerNearTop = false;
+
+    const update = () => {
+      const isDesktop = desktopQuery.matches;
+      const isScrolled = window.scrollY > 20;
+      const hasFocus = header.contains(document.activeElement);
+      header.classList.toggle("is-scrolled", isScrolled);
+      header.classList.toggle("is-visible", !isDesktop || isScrolled || pointerNearTop || hasFocus);
+    };
+
+    document.addEventListener("pointermove", (event) => {
+      if (!desktopQuery.matches) return;
+      const nextPointerNearTop = event.clientY <= revealBoundary;
+      if (nextPointerNearTop === pointerNearTop) return;
+      pointerNearTop = nextPointerNearTop;
+      update();
+    }, { passive: true });
+    header.addEventListener("focusin", update);
+    header.addEventListener("focusout", () => window.requestAnimationFrame(update));
     window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
   }
 
   function setActiveNavigation() {
@@ -304,7 +325,20 @@
     const grid = document.getElementById("projectGrid");
     const sort = document.getElementById("sortProjects");
     let activeCategory = "all";
-    let activeProject = service.getProjects()[0];
+    let activeProject = null;
+
+    const selectProject = (project, scrollOnMobile = false) => {
+      if (!project) return;
+      activeProject = project;
+      updateSelectedCard(grid, project.id);
+      renderSummary(project);
+      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: project.id } }));
+      if (scrollOnMobile && window.matchMedia("(max-width: 1024px)").matches) {
+        window.requestAnimationFrame(() => {
+          document.getElementById("summaryPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+    };
 
     Object.keys(labels).forEach((category) => {
       const button = document.createElement("button");
@@ -317,21 +351,17 @@
       button.addEventListener("click", () => {
         activeCategory = category;
         filters.querySelectorAll("button").forEach((item) => item.setAttribute("aria-selected", String(item === button)));
-        const filtered = renderProjectCards(grid, activeCategory, sort.value, activeProject.id);
-        activeProject = filtered.find((project) => project.id === activeProject.id) || filtered[0] || service.getProjects()[0];
-        updateSelectedCard(grid, activeProject.id);
-        renderSummary(activeProject);
-        window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
+        const filtered = renderProjectCards(grid, activeCategory, sort.value, activeProject?.id || "");
+        if (activeProject && !filtered.some((project) => project.id === activeProject.id)) {
+          activeProject = null;
+          renderSummaryEmpty();
+        }
       });
       filters.appendChild(button);
     });
 
     sort.addEventListener("change", () => {
-      const filtered = renderProjectCards(grid, activeCategory, sort.value, activeProject.id);
-      activeProject = filtered.find((project) => project.id === activeProject.id) || filtered[0] || activeProject;
-      updateSelectedCard(grid, activeProject.id);
-      renderSummary(activeProject);
-      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
+      renderProjectCards(grid, activeCategory, sort.value, activeProject?.id || "");
     });
 
     grid.addEventListener("click", (event) => {
@@ -339,9 +369,7 @@
       if (!card) return;
       const project = service.getProjectById(card.dataset.projectId);
       if (!project) return;
-      activeProject = project;
-      updateSelectedCard(grid, project.id);
-      renderSummary(project);
+      selectProject(project, true);
     });
 
     grid.addEventListener("keydown", (event) => {
@@ -355,15 +383,11 @@
     window.addEventListener("projectringselect", (event) => {
       const project = service.getProjectById(event.detail?.projectId);
       if (!project) return;
-      activeProject = project;
-      updateSelectedCard(grid, project.id);
-      renderSummary(project);
-      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: project.id } }));
+      selectProject(project);
     });
 
-    renderProjectCards(grid, activeCategory, sort.value, activeProject.id);
-    renderSummary(activeProject);
-    window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: activeProject.id } }));
+    renderProjectCards(grid, activeCategory, sort.value, "");
+    renderSummaryEmpty();
   }
 
   function renderProjectCards(grid, category, sortMode, selectedId) {
@@ -379,17 +403,17 @@
 
   function projectCardTemplate(project, isSelected) {
     const file = project.files[0] || {};
+    const thumbnail = getProjectThumbnail(project);
     return `
-      <article class="project-card${isSelected ? " is-selected" : ""}" data-project-card data-project-id="${project.id}" tabindex="0" aria-label="${project.title}">
+      <article class="project-card${isSelected ? " is-selected" : ""}" data-project-card data-project-id="${project.id}" role="button" tabindex="0" aria-label="${project.title}" aria-pressed="${isSelected}">
         <div class="card-image">
-          <img src="${file.thumbnail || fallbackImage}" alt="${file.alt || project.title}">
+          <img src="${thumbnail}" alt="${file.alt || project.title}">
           ${project.type === "video" ? '<span class="play-badge material-symbols-outlined" aria-hidden="true">play_arrow</span>' : ""}
         </div>
         <div class="card-body">
           <span class="category-chip ${project.category}">${labels[project.category]}</span>
           <h2>${project.title}</h2>
-          ${project.category === "asset" ? "" : `<p>${project.period}</p>`}
-          <p class="card-meta-line">${file.meta || project.type} · ${project.files.length}개 결과물</p>
+          <p class="card-project-year">${getProjectYear(project)}</p>
         </div>
       </article>
     `;
@@ -397,31 +421,56 @@
 
   function updateSelectedCard(grid, selectedId) {
     grid.querySelectorAll("[data-project-card]").forEach((card) => {
-      card.classList.toggle("is-selected", card.dataset.projectId === selectedId);
+      const isSelected = card.dataset.projectId === selectedId;
+      card.classList.toggle("is-selected", isSelected);
+      card.setAttribute("aria-pressed", String(isSelected));
     });
+  }
+
+  function renderSummaryEmpty() {
+    const panel = document.getElementById("summaryPanel");
+    if (!panel) return;
+    panel.classList.add("is-empty");
+    panel.innerHTML = `
+      <p class="panel-eyebrow">선택한 프로젝트</p>
+      <div class="summary-empty">
+        <h2>프로젝트를 선택해 주세요</h2>
+        <p>왼쪽 썸네일을 클릭하면 프로젝트 정보를 확인할 수 있습니다.</p>
+      </div>
+    `;
   }
 
   function renderSummary(project) {
     const panel = document.getElementById("summaryPanel");
     if (!panel || !project) return;
     const file = project.files[0] || {};
+    panel.classList.remove("is-empty");
     panel.innerHTML = `
-      <p class="panel-eyebrow">선택된 프로젝트</p>
+      <p class="panel-eyebrow">선택한 프로젝트</p>
       <h2>${project.title}</h2>
       <div class="summary-meta">
         <span class="category-chip ${project.category}">${labels[project.category]}</span>
-        ${project.category === "asset" ? "" : `<span>${project.period}</span>`}
+        <span>${getProjectYear(project)}</span>
       </div>
-      <img class="summary-image" src="${file.thumbnail || fallbackImage}" alt="${file.alt || project.title}">
+      <img class="summary-image" src="${getProjectThumbnail(project)}" alt="${file.alt || project.title}">
       <p>${project.summary}</p>
       <dl class="info-list compact">
         <div><dt>작업 범위</dt><dd>${project.scope}</dd></div>
         <div><dt>주요 목적</dt><dd>${project.improvementTitle}</dd></div>
-        <div><dt>대표 자료</dt><dd>${file.meta || "Project file"} · ${project.files.length}개</dd></div>
+        <div><dt>대표 결과물</dt><dd>${project.deliverables || file.meta || `${project.files.length}개 결과물`}</dd></div>
       </dl>
       <a class="primary-link" href="${pageLinks[project.category]}?project=${encodeURIComponent(project.id)}">상세 보기</a>
     `;
     protectImages(panel);
+  }
+
+  function getProjectThumbnail(project) {
+    const file = project.files?.[0] || {};
+    return project.ringThumbnail || project.listThumbnail || project.cover || file.thumbnail || file.src || fallbackImage;
+  }
+
+  function getProjectYear(project) {
+    return String(project.year || project.period || "").match(/\d{4}/)?.[0] || "2026";
   }
 
   function initDetailPage() {

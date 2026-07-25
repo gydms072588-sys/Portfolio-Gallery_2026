@@ -48,9 +48,9 @@ async function initProjectRing() {
   viewport.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(isMobile ? 42 : 37, 1, 0.1, 100);
-  camera.position.set(0, isMobile ? 0.35 : 0.3, isMobile ? 5.9 : isTablet ? 6.7 : 7.35);
-  camera.lookAt(0, 0, 0);
+  const camera = new THREE.PerspectiveCamera(isMobile ? 42 : 38, 1, 0.1, 100);
+  camera.position.set(0, isMobile ? 0.35 : 0.24, isMobile ? 6.05 : isTablet ? 6.9 : 7.55);
+  camera.lookAt(0, isMobile ? -0.08 : -0.18, 0);
 
   const tiltGroup = new THREE.Group();
   tiltGroup.rotation.set(
@@ -58,7 +58,7 @@ async function initProjectRing() {
     THREE.MathUtils.degToRad(isMobile ? 8 : 12),
     THREE.MathUtils.degToRad(isMobile ? -25 : isTablet ? -34 : -41)
   );
-  tiltGroup.position.set(isMobile ? 0 : 0.2, isMobile ? -0.04 : -0.12, 0);
+  tiltGroup.position.set(isMobile ? 0 : 0.2, isMobile ? -0.14 : isTablet ? -0.28 : -0.34, 0);
   scene.add(tiltGroup);
 
   const spinGroup = new THREE.Group();
@@ -380,7 +380,7 @@ function configureCoverTexture(texture, frameAspect) {
 
 function getThumbnail(project) {
   const file = project.files?.[0] || {};
-  return project.listThumbnail || project.cover || file.thumbnail || file.src || "assets/images/placeholders/image-placeholder.png";
+  return project.ringThumbnail || project.listThumbnail || project.cover || file.thumbnail || file.src || "assets/images/placeholders/image-placeholder.png";
 }
 
 function closestEquivalent(target, current) {
