@@ -8,9 +8,7 @@
     editorial: "Editorial Design",
     asset: "Character & Asset"
   };
-  const categoryDescriptions = {
-    asset: "서비스, 게임, 콘텐츠 플랫폼 등 서로 다른 사용 환경에 맞춰 캐릭터와 일러스트 에셋을 제작했습니다. <br> 캐릭터의 개성과 시각적 완성도뿐 아니라 실제 화면에서의 활용성과 확장 가능성을 함께 고려했습니다."
-  };
+  const categoryDescriptions = {};
   const pageLinks = {
     banner: "banner.html",
     product: "product.html",

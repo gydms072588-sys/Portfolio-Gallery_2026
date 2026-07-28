@@ -366,7 +366,7 @@ window.PROJECTS = [
       dark: "assets/images/banner-vertical-thumbnails-v2/banner-shopping-gift-nightmode-white-v2.png"
     },
     "product-ably-blouse": {
-      light: "assets/images/category-thumbnails/product/product-ably-blouse-lightmode-black-v1.png",
+      light: "assets/images/category-thumbnails/product/product-ably-blouse-lightmode-black-v2.png",
       dark: "assets/images/category-thumbnails/product/product-ably-blouse-nightmode-white-v1.png"
     },
     "product-enne-tube-heater": {
