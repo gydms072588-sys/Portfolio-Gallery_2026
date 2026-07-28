@@ -132,11 +132,11 @@
     let pointerNearTop = false;
 
     const update = () => {
-      const isDesktop = desktopQuery.matches;
-      const isScrolled = window.scrollY > 20;
+      const currentScrollY = window.scrollY;
+      const isScrolled = currentScrollY > 20;
       const hasFocus = header.contains(document.activeElement);
       header.classList.toggle("is-scrolled", isScrolled);
-      header.classList.toggle("is-visible", !isDesktop || isScrolled || pointerNearTop || hasFocus);
+      header.classList.toggle("is-visible", isScrolled || pointerNearTop || hasFocus);
     };
 
     document.addEventListener("pointermove", (event) => {
@@ -146,7 +146,7 @@
       pointerNearTop = nextPointerNearTop;
       update();
     }, { passive: true });
-    header.addEventListener("focusin", update);
+    header.addEventListener("focusin", () => update());
     header.addEventListener("focusout", () => window.requestAnimationFrame(update));
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
@@ -340,6 +340,14 @@
       }
     };
 
+    const clearSelectedProject = () => {
+      if (!activeProject) return;
+      activeProject = null;
+      updateSelectedCard(grid, "");
+      renderSummaryEmpty();
+      window.dispatchEvent(new CustomEvent("projectselectionchange", { detail: { projectId: null } }));
+    };
+
     Object.keys(labels).forEach((category) => {
       const button = document.createElement("button");
       button.type = "button";
@@ -351,7 +359,7 @@
       button.addEventListener("click", () => {
         activeCategory = category;
         filters.querySelectorAll("button").forEach((item) => item.setAttribute("aria-selected", String(item === button)));
-        const filtered = renderProjectCards(grid, activeCategory, sort.value, activeProject?.id || "");
+        const filtered = renderProjectCards(grid, activeCategory, sort.dataset.sort, activeProject?.id || "");
         if (activeProject && !filtered.some((project) => project.id === activeProject.id)) {
           activeProject = null;
           renderSummaryEmpty();
@@ -360,8 +368,17 @@
       filters.appendChild(button);
     });
 
-    sort.addEventListener("change", () => {
-      renderProjectCards(grid, activeCategory, sort.value, activeProject?.id || "");
+    sort.addEventListener("click", () => {
+      const nextSort = sort.dataset.sort === "latest" ? "category" : "latest";
+      sort.dataset.sort = nextSort;
+      sort.querySelector("span:first-child").textContent = nextSort === "latest" ? "최신순" : "카테고리순";
+      sort.setAttribute(
+        "aria-label",
+        nextSort === "latest"
+          ? "현재 최신순 정렬. 누르면 카테고리순으로 변경"
+          : "현재 카테고리순 정렬. 누르면 최신순으로 변경"
+      );
+      renderProjectCards(grid, activeCategory, nextSort, activeProject?.id || "");
     });
 
     grid.addEventListener("click", (event) => {
@@ -380,13 +397,18 @@
       card.click();
     });
 
+    document.querySelector(".archive-layout")?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-project-card], #summaryPanel, .toolbar")) return;
+      clearSelectedProject();
+    });
+
     window.addEventListener("projectringselect", (event) => {
       const project = service.getProjectById(event.detail?.projectId);
       if (!project) return;
       selectProject(project);
     });
 
-    renderProjectCards(grid, activeCategory, sort.value, "");
+    renderProjectCards(grid, activeCategory, sort.dataset.sort, "");
     renderSummaryEmpty();
   }
 
@@ -430,19 +452,16 @@
   function renderSummaryEmpty() {
     const panel = document.getElementById("summaryPanel");
     if (!panel) return;
-    panel.classList.add("is-empty");
-    panel.innerHTML = `
-      <p class="panel-eyebrow">선택한 프로젝트</p>
-      <div class="summary-empty">
-        <h2>프로젝트를 선택해 주세요</h2>
-        <p>왼쪽 썸네일을 클릭하면 프로젝트 정보를 확인할 수 있습니다.</p>
-      </div>
-    `;
+    panel.hidden = true;
+    panel.innerHTML = "";
+    panel.closest(".archive-layout")?.classList.remove("has-selection");
   }
 
   function renderSummary(project) {
     const panel = document.getElementById("summaryPanel");
     if (!panel || !project) return;
+    panel.hidden = false;
+    panel.closest(".archive-layout")?.classList.add("has-selection");
     const file = project.files[0] || {};
     panel.classList.remove("is-empty");
     panel.innerHTML = `
@@ -1094,7 +1113,7 @@
           entry.target.classList.add("is-visible");
           revealObserver.unobserve(entry.target);
         });
-      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+      }, { rootMargin: "0px 0px -16% 0px", threshold: 0.12 });
     }
     targets.forEach((target, index) => {
       if (target.classList.contains("is-visible") || target.dataset.revealBound === "true") return;

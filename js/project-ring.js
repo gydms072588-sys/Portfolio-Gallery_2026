@@ -78,10 +78,16 @@ async function initProjectRing() {
       color: 0x666666,
       transparent: true,
       opacity: 0.58,
-      side: THREE.DoubleSide
+      side: THREE.FrontSide
     });
     const geometry = new THREE.PlaneGeometry(CONFIG.cardWidth, CONFIG.cardHeight);
     const mesh = new THREE.Mesh(geometry, placeholder);
+    const backMaterial = new THREE.MeshBasicMaterial({
+      color: 0xc8c8c3,
+      side: THREE.BackSide
+    });
+    const backMesh = new THREE.Mesh(geometry, backMaterial);
+    mesh.add(backMesh);
     mesh.position.set(Math.sin(angle) * radius, 0, Math.cos(angle) * radius);
     mesh.rotation.y = angle;
     mesh.userData = { projectId: project.id, index, angle };
@@ -89,6 +95,7 @@ async function initProjectRing() {
     meshes.push(mesh);
     geometryPool.push(geometry);
     materialPool.push(placeholder);
+    materialPool.push(backMaterial);
 
     const source = getThumbnail(project);
     textureLoader.load(source, (texture) => {

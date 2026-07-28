@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Project Archive</title>
     <meta name="description" content="포트폴리오 프로젝트를 카테고리별로 탐색하는 정적 프로젝트 갤러리입니다.">
-    <link rel="stylesheet" href="css/gallery.css?v=20260724-7">
+    <link rel="stylesheet" href="css/gallery.css?v=20260728-16">
   </head>
   <body data-page="index">
     <a class="skip-link" href="#main">본문으로 바로가기</a>
@@ -33,10 +33,10 @@
 
     <main id="main" class="page-shell">
       <section class="archive-hero editorial-hero" aria-labelledby="archiveTitle">
-        <div class="hero-index" data-reveal>Portfolio / 2026</div>
+        <div class="hero-index" aria-hidden="true"></div>
         <div class="hero-copy">
           <h1 id="archiveTitle" data-reveal>Selected<br>Works</h1>
-          <p data-reveal>배너, 상세페이지, 영상, 편집 디자인과 캐릭터 작업을 기록한 프로젝트 아카이브입니다.</p>
+          <p data-reveal>배너, 상세페이지, 영상, 편집 디자인과 캐릭터 작업을 기록한 <br>프로젝트 아카이브입니다.</p>
         </div>
         <div class="project-ring-shell" data-reveal>
           <div id="project-ring-viewport" class="project-ring-viewport" aria-hidden="true"></div>
@@ -56,24 +56,21 @@
         <div class="project-area">
           <div class="toolbar">
             <div class="filter-tabs" id="categoryFilters" role="tablist" aria-label="카테고리 필터"></div>
-            <label class="sort-select">
-              <span class="visually-hidden">정렬</span>
-              <select id="sortProjects">
-                <option value="latest">최신순</option>
-                <option value="category">카테고리순</option>
-              </select>
-            </label>
+            <button class="sort-toggle" id="sortProjects" type="button" data-sort="latest" aria-label="현재 최신순 정렬. 누르면 카테고리순으로 변경">
+              <span>최신순</span>
+              <span class="material-symbols-outlined sort-toggle-icon" aria-hidden="true">swap_vert</span>
+            </button>
           </div>
           <div class="project-grid" id="projectGrid" aria-live="polite"></div>
         </div>
 
-        <aside class="summary-panel" id="summaryPanel" aria-label="선택된 프로젝트 요약"></aside>
+        <aside class="summary-panel" id="summaryPanel" aria-label="선택된 프로젝트 요약" hidden></aside>
       </section>
     </main>
 
     <script src="js/projects.js?v=20260724-2"></script>
     <script src="js/project-service.js"></script>
-    <script src="js/gallery.js?v=20260724-3"></script>
-    <script type="module" src="js/project-ring.js?v=20260724-3"></script>
+    <script src="js/gallery.js?v=20260728-7"></script>
+    <script type="module" src="js/project-ring.js?v=20260728-3"></script>
   </body>
 </html>
