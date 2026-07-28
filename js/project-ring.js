@@ -72,6 +72,25 @@ async function initProjectRing() {
   const radius = isMobile ? CONFIG.radiusMobile : isTablet ? CONFIG.radiusTablet : CONFIG.radiusDesktop;
   const step = (Math.PI * 2) / projects.length;
 
+  function loadProjectTexture(project, material) {
+    const source = getThumbnail(project);
+    textureLoader.load(source, (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.minFilter = THREE.LinearFilter;
+      texturePool.push(texture);
+      configureCoverTexture(texture, CONFIG.cardWidth / CONFIG.cardHeight);
+      const previousTexture = material.map;
+      material.map = texture;
+      material.color.setHex(0xffffff);
+      material.needsUpdate = true;
+      if (previousTexture) previousTexture.dispose();
+      requestRender();
+    }, undefined, (error) => {
+      console.warn(`[Project Ring] Texture failed: ${source}`, error);
+      requestRender();
+    });
+  }
+
   projects.forEach((project, index) => {
     const angle = index * step;
     const placeholder = new THREE.MeshBasicMaterial({
@@ -97,21 +116,13 @@ async function initProjectRing() {
     materialPool.push(placeholder);
     materialPool.push(backMaterial);
 
-    const source = getThumbnail(project);
-    textureLoader.load(source, (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.minFilter = THREE.LinearFilter;
-      texturePool.push(texture);
-      configureCoverTexture(texture, CONFIG.cardWidth / CONFIG.cardHeight);
-      placeholder.map = texture;
-      placeholder.color.setHex(0xffffff);
-      placeholder.needsUpdate = true;
-      requestRender();
-    }, undefined, (error) => {
-      console.warn(`[Project Ring] Texture failed: ${source}`, error);
-      requestRender();
-    });
+    loadProjectTexture(project, placeholder);
   });
+
+  const onThemeChange = () => {
+    projects.forEach((project, index) => loadProjectTexture(project, meshes[index].material));
+  };
+  window.addEventListener("projectarchive-themechange", onThemeChange);
 
   const clock = new THREE.Clock();
   const raycaster = new THREE.Raycaster();
@@ -352,6 +363,7 @@ async function initProjectRing() {
     window.removeEventListener("wheel", onWheel);
     document.removeEventListener("visibilitychange", onVisibilityChange);
     window.removeEventListener("projectselectionchange", onSelectionChange);
+    window.removeEventListener("projectarchive-themechange", onThemeChange);
     geometryPool.forEach((geometry) => geometry.dispose());
     materialPool.forEach((material) => material.dispose());
     texturePool.forEach((texture) => texture.dispose());
@@ -387,6 +399,8 @@ function configureCoverTexture(texture, frameAspect) {
 
 function getThumbnail(project) {
   const file = project.files?.[0] || {};
+  const theme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  if (project.ringThemeThumbnails?.[theme]) return project.ringThemeThumbnails[theme];
   return project.ringThumbnail || project.listThumbnail || project.cover || file.thumbnail || file.src || "assets/images/placeholders/image-placeholder.png";
 }
 

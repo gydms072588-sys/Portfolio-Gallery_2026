@@ -338,6 +338,80 @@ window.PROJECTS = [
   });
 })();
 
+// Final 3:4 thumbnails used only by the SELECTED WORKS Three.js ring.
+(function configureRingThemeThumbnails() {
+  const thumbnails = {
+    "banner-kbcard-event": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-kbcard-event-lightmode-black-v2.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-kbcard-event-nightmode-white-v2.png"
+    },
+    "banner-ably-redesign": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-ably-redesign-lightmode-black-v2.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-ably-redesign-nightmode-white-v2.png"
+    },
+    "banner-junosoft-commerce": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-junosoft-commerce-lightmode-black-v2.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-junosoft-commerce-nightmode-white-v2.png"
+    },
+    "banner-winter-sale": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-winter-sale-lightmode-black-v2.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-winter-sale-nightmode-white-v2.png"
+    },
+    "banner-univstore-event": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-univstore-event-lightmode-black-v3.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-univstore-event-nightmode-white-v3.png"
+    },
+    "banner-shopping-gift": {
+      light: "assets/images/banner-vertical-thumbnails-v2/banner-shopping-gift-lightmode-black-v2.png",
+      dark: "assets/images/banner-vertical-thumbnails-v2/banner-shopping-gift-nightmode-white-v2.png"
+    },
+    "product-ably-blouse": {
+      light: "assets/images/category-thumbnails/product/product-ably-blouse-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/product/product-ably-blouse-nightmode-white-v1.png"
+    },
+    "product-enne-tube-heater": {
+      light: "assets/images/category-thumbnails/product/product-enne-tube-heater-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/product/product-enne-tube-heater-nightmode-white-v1.png"
+    },
+    "product-junosoft-shopping": {
+      light: "assets/images/category-thumbnails/product/product-junosoft-shopping-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/product/product-junosoft-shopping-nightmode-white-v1.png"
+    },
+    "video-ably-hero": {
+      light: "assets/images/category-thumbnails/video/video-ably-hero-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/video/video-ably-hero-nightmode-white-v1.png"
+    },
+    "video-yeogida-event": {
+      light: "assets/images/category-thumbnails/video/video-yeogida-event-lightmode-black-v2.png",
+      dark: "assets/images/category-thumbnails/video/video-yeogida-event-nightmode-white-v2.png"
+    },
+    "video-junosoft-cafe24": {
+      light: "assets/images/category-thumbnails/video/video-junosoft-cafe24-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/video/video-junosoft-cafe24-nightmode-white-v1.png"
+    },
+    "editorial-business-card": {
+      light: "assets/images/category-thumbnails/editorial/editorial-business-card-lightmode-black-v1.png",
+      dark: "assets/images/category-thumbnails/editorial/editorial-business-card-nightmode-white-v1.png"
+    },
+    "asset-jarigobbi-character": {
+      light: "assets/images/category-thumbnails/character-asset/asset-jarigobbi-character-lightmode-black-v2.jpg",
+      dark: "assets/images/category-thumbnails/character-asset/asset-jarigobbi-character-white-only-v2.jpg"
+    },
+    "asset-item-illustration": {
+      light: "assets/images/category-thumbnails/character-asset/asset-item-illustration-lightmode-black-v2.jpg",
+      dark: "assets/images/category-thumbnails/character-asset/asset-item-illustration-nightmode-white-v2.jpg"
+    },
+    "asset-ogq-sticker": {
+      light: "assets/images/category-thumbnails/character-asset/asset-ogq-sticker-lightmode-black-v2.jpg",
+      dark: "assets/images/category-thumbnails/character-asset/asset-ogq-sticker-nightmode-white-v2.jpg"
+    }
+  };
+
+  window.PROJECTS.forEach((project) => {
+    if (thumbnails[project.id]) project.ringThemeThumbnails = thumbnails[project.id];
+  });
+})();
+
 // Product detail media: list covers stay independent from the full detail
 // images and the object-focused navigation thumbnails.
 (function configureProductDetailMedia() {

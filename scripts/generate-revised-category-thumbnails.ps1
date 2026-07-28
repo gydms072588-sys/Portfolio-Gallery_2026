@@ -61,6 +61,28 @@ function Draw-TransparentAsset($graphics, [string]$path, [System.Drawing.Rectang
   }
 }
 
+function Draw-CroppedAsset(
+  $graphics,
+  [string]$path,
+  [System.Drawing.Rectangle]$sourceRectangle,
+  [System.Drawing.Rectangle]$destination
+) {
+  $image = [System.Drawing.Image]::FromFile($path)
+  try {
+    $graphics.DrawImage(
+      $image,
+      $destination,
+      $sourceRectangle.X,
+      $sourceRectangle.Y,
+      $sourceRectangle.Width,
+      $sourceRectangle.Height,
+      [System.Drawing.GraphicsUnit]::Pixel
+    )
+  } finally {
+    $image.Dispose()
+  }
+}
+
 function Save-Canvas($canvas, [string]$path) {
   $directory = Split-Path -Parent $path
   New-Item -ItemType Directory -Path $directory -Force | Out-Null
@@ -69,6 +91,46 @@ function Save-Canvas($canvas, [string]$path) {
   } finally {
     $canvas.Graphics.Dispose()
     $canvas.Bitmap.Dispose()
+  }
+}
+
+function New-CleanOgqAsset([string]$sourcePath, [string]$outputPath) {
+  $source = [System.Drawing.Bitmap]::FromFile($sourcePath)
+  try {
+    $clean = New-Object System.Drawing.Bitmap $source.Width, $source.Height, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    try {
+      $graphics = [System.Drawing.Graphics]::FromImage($clean)
+      try {
+        $graphics.DrawImageUnscaled($source, 0, 0)
+        $graphics.CompositingMode = [System.Drawing.Drawing2D.CompositingMode]::SourceCopy
+        $transparent = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::Transparent)
+        try {
+          # Remove only disconnected decorative hearts and dots. The mouse,
+          # ribbon and attached balls remain pixel-identical to the source.
+          $clearAreas = @(
+            (New-Object System.Drawing.Rectangle 0, 0, 210, 230),
+            (New-Object System.Drawing.Rectangle 625, 0, 105, 260),
+            (New-Object System.Drawing.Rectangle 570, 130, 55, 65),
+            (New-Object System.Drawing.Rectangle 700, 190, 30, 120),
+            (New-Object System.Drawing.Rectangle 0, 590, 210, 130),
+            (New-Object System.Drawing.Rectangle 205, 625, 145, 95),
+            (New-Object System.Drawing.Rectangle 555, 570, 175, 150)
+          )
+          foreach ($area in $clearAreas) {
+            $graphics.FillRectangle($transparent, $area)
+          }
+        } finally {
+          $transparent.Dispose()
+        }
+      } finally {
+        $graphics.Dispose()
+      }
+      $clean.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
+    } finally {
+      $clean.Dispose()
+    }
+  } finally {
+    $source.Dispose()
   }
 }
 
@@ -116,33 +178,58 @@ function New-AssetThumbnail(
   Save-Canvas $canvas $path
 }
 
+function New-CroppedAssetThumbnail(
+  [bool]$dark,
+  [string]$category,
+  [string]$title,
+  [string]$assetPath,
+  [System.Drawing.Rectangle]$sourceRectangle,
+  [System.Drawing.Rectangle]$destination,
+  [string]$path
+) {
+  $canvas = New-Canvas $dark
+  $graphics = $canvas.Graphics
+  Draw-Heading $graphics $dark $category $title
+  Draw-MinimalFrame $graphics $dark
+  Draw-CroppedAsset $graphics $assetPath $sourceRectangle $destination
+  Save-Canvas $canvas $path
+}
+
 $travelDir = Join-Path $outputRoot "video"
 New-TravelThumbnail $true (Join-Path $travelDir "video-yeogida-event-lightmode-black-v2.png")
 New-TravelThumbnail $false (Join-Path $travelDir "video-yeogida-event-nightmode-white-v2.png")
 
 $extractRoot = Join-Path $root "assets\images\thumbnails\concepts\character-asset\extracts"
 $assetDir = Join-Path $outputRoot "character-asset"
+$cleanOgqPath = Join-Path $extractRoot "ogq-mouse-clean.png"
+New-CleanOgqAsset (Join-Path $extractRoot "ogq-mouse.png") $cleanOgqPath
 
-# The front-facing character is intentionally supplied only on white, per request.
+# Front-facing character in both theme variants, using the same source pixels.
+New-AssetThumbnail $true "CHARACTER & ASSET" "자린고비 캐릭터 디자인" `
+  (Join-Path $extractRoot "jaringobi-main.png") `
+  (New-Object System.Drawing.Rectangle 430, 430, 640, 1440) `
+  (Join-Path $assetDir "asset-jarigobbi-character-lightmode-black-v2.png")
 New-AssetThumbnail $false "CHARACTER & ASSET" "자린고비 캐릭터 디자인" `
   (Join-Path $extractRoot "jaringobi-main.png") `
   (New-Object System.Drawing.Rectangle 430, 430, 640, 1440) `
   (Join-Path $assetDir "asset-jarigobbi-character-white-only-v2.png")
 
-New-AssetThumbnail $true "CHARACTER & ASSET" "게임 아이템 일러스트" `
+New-CroppedAssetThumbnail $true "CHARACTER & ASSET" "게임 아이템 일러스트" `
   (Join-Path $extractRoot "game-camera.png") `
-  (New-Object System.Drawing.Rectangle 300, 650, 900, 634) `
+  (New-Object System.Drawing.Rectangle 0, 40, 355, 200) `
+  (New-Object System.Drawing.Rectangle 275, 700, 950, 535) `
   (Join-Path $assetDir "asset-item-illustration-lightmode-black-v2.png")
-New-AssetThumbnail $false "CHARACTER & ASSET" "게임 아이템 일러스트" `
+New-CroppedAssetThumbnail $false "CHARACTER & ASSET" "게임 아이템 일러스트" `
   (Join-Path $extractRoot "game-camera.png") `
-  (New-Object System.Drawing.Rectangle 300, 650, 900, 634) `
+  (New-Object System.Drawing.Rectangle 0, 40, 355, 200) `
+  (New-Object System.Drawing.Rectangle 275, 700, 950, 535) `
   (Join-Path $assetDir "asset-item-illustration-nightmode-white-v2.png")
 
 New-AssetThumbnail $true "CHARACTER & ASSET" "OGQ 감정 스티커" `
-  (Join-Path $extractRoot "ogq-mouse.png") `
-  (New-Object System.Drawing.Rectangle 260, 545, 980, 967) `
+  $cleanOgqPath `
+  (New-Object System.Drawing.Rectangle 260, 590, 980, 967) `
   (Join-Path $assetDir "asset-ogq-sticker-lightmode-black-v2.png")
 New-AssetThumbnail $false "CHARACTER & ASSET" "OGQ 감정 스티커" `
-  (Join-Path $extractRoot "ogq-mouse.png") `
-  (New-Object System.Drawing.Rectangle 260, 545, 980, 967) `
+  $cleanOgqPath `
+  (New-Object System.Drawing.Rectangle 260, 590, 980, 967) `
   (Join-Path $assetDir "asset-ogq-sticker-nightmode-white-v2.png")

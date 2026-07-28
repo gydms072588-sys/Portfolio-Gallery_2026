@@ -77,6 +77,13 @@
     document.querySelectorAll(".theme-icon").forEach((icon) => {
       icon.textContent = theme === "dark" ? "dark_mode" : "light_mode";
     });
+    if (document.body?.dataset.page === "index") {
+      document.querySelectorAll(".project-card[data-project-id] .card-image img").forEach((image) => {
+        const project = service?.getProjectById(image.closest("[data-project-id]")?.dataset.projectId);
+        if (project?.ringThemeThumbnails) image.src = getProjectThumbnail(project);
+      });
+    }
+    window.dispatchEvent(new CustomEvent("projectarchive-themechange", { detail: { theme } }));
   }
 
   function initMenu() {
@@ -485,6 +492,10 @@
 
   function getProjectThumbnail(project) {
     const file = project.files?.[0] || {};
+    const theme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    if (document.body?.dataset.page === "index" && project.ringThemeThumbnails?.[theme]) {
+      return project.ringThemeThumbnails[theme];
+    }
     return project.ringThumbnail || project.listThumbnail || project.cover || file.thumbnail || file.src || fallbackImage;
   }
 
