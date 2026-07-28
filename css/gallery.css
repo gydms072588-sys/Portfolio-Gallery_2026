@@ -401,6 +401,8 @@ body[data-page="index"] .archive-layout:not(.has-selection) {
 }
 
 .category-heading-row {
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -433,6 +435,10 @@ body[data-page="index"] .archive-layout:not(.has-selection) {
 .view-dropdown {
   position: relative;
   flex: 0 0 auto;
+}
+
+.view-dropdown.is-open {
+  z-index: 100;
 }
 
 .view-dropdown-toggle {
@@ -477,7 +483,7 @@ body[data-page="index"] .archive-layout:not(.has-selection) {
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  z-index: 30;
+  z-index: 101;
   display: none;
   width: max-content;
   min-width: 166px;
@@ -2800,6 +2806,10 @@ body[data-page="index"] .page-shell > * {
 
 .project-card:nth-child(even) {
   margin-top: clamp(60px, 9vw, 145px);
+}
+
+.category-page .project-grid > .project-card:nth-child(n) {
+  margin-top: 0;
 }
 
 .project-grid.view-list {

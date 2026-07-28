@@ -17,11 +17,10 @@
     asset: "asset.html"
   };
   const fallbackImage = "assets/images/placeholders/image-placeholder.png";
-  const categoryViewModes = ["list", "post", "gallery"];
+  const categoryViewModes = ["list", "post"];
   const categoryViewOptions = [
     { mode: "list", label: "목록", icon: "list" },
-    { mode: "post", label: "글", icon: "article" },
-    { mode: "gallery", label: "갤러리", icon: "grid_view" }
+    { mode: "post", label: "글", icon: "article" }
   ];
   const categoryIcons = {
     banner: "web_asset",
